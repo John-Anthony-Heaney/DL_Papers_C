@@ -26,6 +26,12 @@ typedef struct {
     double bias;
 } Neuron;
 
+typedef struct {
+    double weights[HIDDEN_NEURONS]; 
+    double bias;
+} OutputNeuron;
+
+
 
 typedef struct {
     Neuron neurons[HIDDEN_NEURONS]; 
@@ -118,5 +124,36 @@ void test(Layer *layer, double inputs[]) {
 }
 
 
+int main() {
+    Layer hidden_layer;
+    initialize_layer(&hidden_layer);
+
+    double inputs[7][INPUT_NEURONS] = {
+        {0, 0, 0},
+        {0, 0, 1},
+        {0, 1, 0},
+        {0, 1, 1},
+        {1, 0, 0},
+        {1, 1, 0},
+        {1, 1, 1}
+    };
+
+    double targets[7][OUTPUT_NEURONS] = {
+        {0},
+        {1},
+        {1},
+        {0},
+        {1},
+        {0},
+        {1}
+    };
+
+    train(&hidden_layer, inputs, targets, 7);
+
+    double new_input[INPUT_NEURONS] = {1, 0, 1};
+    test(&hidden_layer, new_input);
+
+    return 0;
+}
 
 
