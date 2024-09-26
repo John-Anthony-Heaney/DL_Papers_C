@@ -149,16 +149,13 @@ void train(Layer *hidden_layer, OutputNeuron *output_neuron, double inputs[][INP
 
 
 
-void test(Layer *layer, double inputs[]) {
-    double outputs[HIDDEN_NEURONS];
-    forward_propagation(layer, inputs, outputs);
+void test(Layer *hidden_layer, OutputNeuron *output_neuron, double inputs[]) {
+    double final_output;
+    forward_propagation(hidden_layer, output_neuron, inputs, &final_output);
 
-    printf("Predicted output: ");
-    for (int i = 0; i < HIDDEN_NEURONS; i++) {
-        printf("%lf ", outputs[i]);
-    }
-    printf("\n");
+    printf("Predicted output: %lf\n", final_output);
 }
+
 
 
 int main() {
