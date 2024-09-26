@@ -7,7 +7,7 @@
 // Whenever the macro name is seen the preprocessor replaces 
 // that name  with the corresponding value
 #define INPUT_NEURONS 3
-#define HIDDEN_NEURONS 3
+#define HIDDEN_NEURONS 4
 #define OUTPUT_NEURONS 1
 #define LEARNING_RATE 0.0001
 
@@ -18,6 +18,14 @@ double sigmoid(double x) {
 
 double sigmoid_derivative(double x) {
     return x * (1.0 - x);
+}
+
+double relu(double x) {
+    return (x > 0) ? x : 0;
+}
+
+double relu_derivative(double x) {
+    return (x > 0) ? 1 : 0;
 }
 
 
@@ -52,9 +60,9 @@ typedef struct {
 
 void initialize_neuron(Neuron *neuron) {
     for (int i = 0; i < INPUT_NEURONS; i++) {
-        neuron->weights[i] = ((double)rand() / RAND_MAX) * 2 - 1; 
+        neuron->weights[i] = ((double)rand() / RAND_MAX) * 0.22 - 0.1; 
     }
-    neuron->bias = ((double)rand() / RAND_MAX) * 2 - 1;
+    neuron->bias = ((double)rand() / RAND_MAX) * 0.2 - 0.1;
 }
 
 void initialize_layer(Layer *layer) {
@@ -64,14 +72,14 @@ void initialize_layer(Layer *layer) {
 }
 
 //neuron->bias is equivalent to (*neuron).bias
-//The function returns the output of the sigmoid function for a single neuron
+//The function returns the output of the relu function for a single neuron
 // by adding the bias and the sum of input*weights
 double feedforward(Neuron *neuron, double inputs[]) {
     double activation = neuron->bias;
     for (int i = 0; i < INPUT_NEURONS; i++) {
         activation += neuron->weights[i] * inputs[i];
     }
-    return sigmoid(activation);
+    return relu(activation);
 }
 
 double feedforward_output(OutputNeuron *output_neuron, double hidden_outputs[]) {
@@ -79,7 +87,7 @@ double feedforward_output(OutputNeuron *output_neuron, double hidden_outputs[]) 
     for (int i = 0; i < HIDDEN_NEURONS; i++) {
         activation += output_neuron->weights[i] * hidden_outputs[i];
     }
-    return sigmoid(activation);
+    return relu(activation);
 }
 
 
@@ -102,7 +110,7 @@ void forward_propagation(Layer *hidden_layer, OutputNeuron *output_neuron, doubl
 void backward_propagation(Layer *layer, double inputs[], double target[], double outputs[], double error_gradient[]) {
     for (int i = 0; i < HIDDEN_NEURONS; i++) {
         double error = target[i] - outputs[i];
-        error_gradient[i] = error * sigmoid_derivative(outputs[i]);
+        error_gradient[i] = error * relu_derivative(outputs[i]);
 
 
         for (int j = 0; j < INPUT_NEURONS; j++) {
@@ -125,7 +133,7 @@ void train(Layer *hidden_layer, OutputNeuron *output_neuron, double inputs[][INP
 
             
             double error_output = targets[sample][0] - final_output;
-            error_gradient_output = error_output * sigmoid_derivative(final_output);
+            error_gradient_output = error_output * relu_derivative(final_output);
 
             
             for (int i = 0; i < HIDDEN_NEURONS; i++) {
@@ -136,7 +144,7 @@ void train(Layer *hidden_layer, OutputNeuron *output_neuron, double inputs[][INP
             
             double error_gradient_hidden[HIDDEN_NEURONS];
             for (int i = 0; i < HIDDEN_NEURONS; i++) {
-                error_gradient_hidden[i] = error_gradient_output * output_neuron->weights[i] * sigmoid_derivative(hidden_outputs[i]);
+                error_gradient_hidden[i] = error_gradient_output * output_neuron->weights[i] * relu_derivative(hidden_outputs[i]);
 
                 for (int j = 0; j < INPUT_NEURONS; j++) {
                     hidden_layer->neurons[i].weights[j] += LEARNING_RATE * error_gradient_hidden[i] * inputs[sample][j];
