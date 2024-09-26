@@ -90,6 +90,21 @@ void backward_propagation(Layer *layer, double inputs[], double target[], double
     }
 }
 
+void train(Layer *layer, double inputs[][INPUT_NEURONS], double targets[][OUTPUT_NEURONS], int num_samples) {
+    double outputs[HIDDEN_NEURONS];
+    double error_gradient[HIDDEN_NEURONS];
+
+    for (int epoch = 0; epoch < 10000; epoch++) { 
+        for (int sample = 0; sample < num_samples; sample++) {
+            
+            forward_propagation(layer, inputs[sample], outputs);
+
+            
+            backward_propagation(layer, inputs[sample], targets[sample], outputs, error_gradient);
+        }
+    }
+}
+
 
 void test(Layer *layer, double inputs[]) {
     double outputs[HIDDEN_NEURONS];
@@ -101,4 +116,7 @@ void test(Layer *layer, double inputs[]) {
     }
     printf("\n");
 }
+
+
+
 
