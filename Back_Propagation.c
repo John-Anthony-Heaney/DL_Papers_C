@@ -57,3 +57,21 @@ void initialize_layer(Layer *layer) {
     }
 }
 
+//neuron->bias is equivalent to (*neuron).bias
+//The function returns the output of the sigmoid function for a single neuron
+// by adding the bias and the sum of input*weights
+double feedforward(Neuron *neuron, double inputs[]) {
+    double activation = neuron->bias;
+    for (int i = 0; i < INPUT_NEURONS; i++) {
+        activation += neuron->weights[i] * inputs[i];
+    }
+    return sigmoid(activation);
+}
+
+// applying the feedforward function to every neuron in the layer
+// &(layer->neurons[i]) is getting the address of the specific neuron in the layer
+void forward_propagation(Layer *layer, double inputs[], double outputs[]) {
+    for (int i = 0; i < HIDDEN_NEURONS; i++) {
+        outputs[i] = feedforward(&(layer->neurons[i]), inputs);
+    }
+}
