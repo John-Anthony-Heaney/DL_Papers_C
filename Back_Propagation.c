@@ -75,3 +75,18 @@ void forward_propagation(Layer *layer, double inputs[], double outputs[]) {
         outputs[i] = feedforward(&(layer->neurons[i]), inputs);
     }
 }
+
+
+void backward_propagation(Layer *layer, double inputs[], double target[], double outputs[], double error_gradient[]) {
+    for (int i = 0; i < HIDDEN_NEURONS; i++) {
+        double error = target[i] - outputs[i];
+        error_gradient[i] = error * sigmoid_derivative(outputs[i]);
+
+
+        for (int j = 0; j < INPUT_NEURONS; j++) {
+            layer->neurons[i].weights[j] += LEARNING_RATE * error_gradient[i] * inputs[j];
+        }
+        layer->neurons[i].bias += LEARNING_RATE * error_gradient[i];
+    }
+}
+
