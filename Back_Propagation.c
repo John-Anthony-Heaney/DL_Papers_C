@@ -82,6 +82,15 @@ void forward_propagation(Layer *layer, double inputs[], double outputs[]) {
     }
 }
 
+double feedforward_output(OutputNeuron *output_neuron, double hidden_outputs[]) {
+    double activation = output_neuron->bias;
+    for (int i = 0; i < HIDDEN_NEURONS; i++) {
+        activation += output_neuron->weights[i] * hidden_outputs[i];
+    }
+    return sigmoid(activation);
+}
+
+
 
 void backward_propagation(Layer *layer, double inputs[], double target[], double outputs[], double error_gradient[]) {
     for (int i = 0; i < HIDDEN_NEURONS; i++) {
