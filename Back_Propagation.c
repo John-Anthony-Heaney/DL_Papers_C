@@ -90,3 +90,15 @@ void backward_propagation(Layer *layer, double inputs[], double target[], double
     }
 }
 
+
+void test(Layer *layer, double inputs[]) {
+    double outputs[HIDDEN_NEURONS];
+    forward_propagation(layer, inputs, outputs);
+
+    printf("Predicted output: ");
+    for (int i = 0; i < HIDDEN_NEURONS; i++) {
+        printf("%lf ", outputs[i]);
+    }
+    printf("\n");
+}
+
