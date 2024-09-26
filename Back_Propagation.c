@@ -9,7 +9,7 @@
 #define INPUT_NEURONS 3
 #define HIDDEN_NEURONS 3
 #define OUTPUT_NEURONS 1
-#define LEARNING_RATE 0.1
+#define LEARNING_RATE 0.0001
 
 
 double sigmoid(double x) {
@@ -117,7 +117,7 @@ void train(Layer *hidden_layer, OutputNeuron *output_neuron, double inputs[][INP
     double final_output;
     double error_gradient_output;
 
-    for (int epoch = 0; epoch < 10000; epoch++) {
+    for (int epoch = 0; epoch < 1000000; epoch++) {
         for (int sample = 0; sample < num_samples; sample++) {
 
             
@@ -162,30 +162,35 @@ int main() {
     Layer hidden_layer;
     initialize_layer(&hidden_layer);
 
-    double inputs[7][INPUT_NEURONS] = {
+    OutputNeuron output_neuron;  
+    initialize_neuron((Neuron *)&output_neuron); 
+
+    double inputs[8][INPUT_NEURONS] = {
         {0, 0, 0},
         {0, 0, 1},
         {0, 1, 0},
         {0, 1, 1},
         {1, 0, 0},
+        {1, 0, 1},
         {1, 1, 0},
         {1, 1, 1}
     };
 
-    double targets[7][OUTPUT_NEURONS] = {
+    double targets[8][OUTPUT_NEURONS] = {
         {0},
         {1},
         {1},
         {0},
         {1},
+        {0},
         {0},
         {1}
     };
 
-    train(&hidden_layer, inputs, targets, 7);
+    train(&hidden_layer, &output_neuron, inputs, targets, 7);
 
     double new_input[INPUT_NEURONS] = {1, 0, 1};
-    test(&hidden_layer, new_input);
+    test(&hidden_layer, &output_neuron, new_input);
 
     return 0;
 }
