@@ -74,14 +74,6 @@ double feedforward(Neuron *neuron, double inputs[]) {
     return sigmoid(activation);
 }
 
-// applying the feedforward function to every neuron in the layer
-// &(layer->neurons[i]) is getting the address of the specific neuron in the layer
-void forward_propagation(Layer *layer, double inputs[], double outputs[]) {
-    for (int i = 0; i < HIDDEN_NEURONS; i++) {
-        outputs[i] = feedforward(&(layer->neurons[i]), inputs);
-    }
-}
-
 double feedforward_output(OutputNeuron *output_neuron, double hidden_outputs[]) {
     double activation = output_neuron->bias;
     for (int i = 0; i < HIDDEN_NEURONS; i++) {
@@ -89,6 +81,21 @@ double feedforward_output(OutputNeuron *output_neuron, double hidden_outputs[]) 
     }
     return sigmoid(activation);
 }
+
+
+// applying the feedforward function to every neuron in the layer
+// &(hidden_layer->neurons[i]) is getting the address of the specific neuron in the layer
+void forward_propagation(Layer *hidden_layer, OutputNeuron *output_neuron, double inputs[], double *final_output) {
+    double hidden_outputs[HIDDEN_NEURONS];
+    
+    for (int i = 0; i < HIDDEN_NEURONS; i++) {
+        hidden_outputs[i] = feedforward(&(hidden_layer->neurons[i]), inputs);
+    }
+    
+    *final_output = feedforward_output(output_neuron, hidden_outputs);
+}
+
+
 
 
 
