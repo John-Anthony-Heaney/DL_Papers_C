@@ -112,20 +112,41 @@ void backward_propagation(Layer *layer, double inputs[], double target[], double
     }
 }
 
-void train(Layer *layer, double inputs[][INPUT_NEURONS], double targets[][OUTPUT_NEURONS], int num_samples) {
-    double outputs[HIDDEN_NEURONS];
-    double error_gradient[HIDDEN_NEURONS];
+void train(Layer *hidden_layer, OutputNeuron *output_neuron, double inputs[][INPUT_NEURONS], double targets[][OUTPUT_NEURONS], int num_samples) {
+    double hidden_outputs[HIDDEN_NEURONS];
+    double final_output;
+    double error_gradient_output;
 
-    for (int epoch = 0; epoch < 10000; epoch++) { 
+    for (int epoch = 0; epoch < 10000; epoch++) {
         for (int sample = 0; sample < num_samples; sample++) {
-            
-            forward_propagation(layer, inputs[sample], outputs);
 
             
-            backward_propagation(layer, inputs[sample], targets[sample], outputs, error_gradient);
+            forward_propagation(hidden_layer, output_neuron, inputs[sample], &final_output);
+
+            
+            double error_output = targets[sample][0] - final_output;
+            error_gradient_output = error_output * sigmoid_derivative(final_output);
+
+            
+            for (int i = 0; i < HIDDEN_NEURONS; i++) {
+                output_neuron->weights[i] += LEARNING_RATE * error_gradient_output * hidden_outputs[i];
+            }
+            output_neuron->bias += LEARNING_RATE * error_gradient_output;
+
+            
+            double error_gradient_hidden[HIDDEN_NEURONS];
+            for (int i = 0; i < HIDDEN_NEURONS; i++) {
+                error_gradient_hidden[i] = error_gradient_output * output_neuron->weights[i] * sigmoid_derivative(hidden_outputs[i]);
+
+                for (int j = 0; j < INPUT_NEURONS; j++) {
+                    hidden_layer->neurons[i].weights[j] += LEARNING_RATE * error_gradient_hidden[i] * inputs[sample][j];
+                }
+                hidden_layer->neurons[i].bias += LEARNING_RATE * error_gradient_hidden[i];
+            }
         }
     }
 }
+
 
 
 void test(Layer *layer, double inputs[]) {
