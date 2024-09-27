@@ -48,3 +48,34 @@ void initialize_rnn(RNN *rnn) {
         rnn->b_o[i] = 0.0;
     }
 }
+
+
+double forward_step(RNN *rnn, double input[], int t) {
+    double h_new[HIDDEN_SIZE] = {0};
+
+    
+    for (int i = 0; i < HIDDEN_SIZE; i++) {
+        double sum = rnn->b_h[i];
+        for (int j = 0; j < INPUT_SIZE; j++) {
+            sum += input[j] * rnn->W_ih[j][i];
+        }
+        for (int j = 0; j < HIDDEN_SIZE; j++) {
+            sum += rnn->h[t - 1][j] * rnn->W_hh[j][i];
+        }
+        h_new[i] = tanh_activation(sum);
+    }
+
+    
+    for (int i = 0; i < HIDDEN_SIZE; i++) {
+        rnn->h[t][i] = h_new[i];
+    }
+
+    
+    double output = 0;
+    for (int i = 0; i < HIDDEN_SIZE; i++) {
+        output += rnn->h[t][i] * rnn->W_ho[i][0];
+    }
+    output += rnn->b_o[0];
+
+    return output;
+}
