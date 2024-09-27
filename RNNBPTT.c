@@ -116,3 +116,28 @@ void backprop_through_time(RNN *rnn, double input[TIME_STEPS][INPUT_SIZE], doubl
         }
     }
 }
+
+
+int main() {
+    RNN rnn;
+    initialize_rnn(&rnn);
+
+    
+    double input[TIME_STEPS][INPUT_SIZE] = {
+        {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 0, 1}, {0, 1, 1}
+    };
+    
+    double target[TIME_STEPS] = {0, 1, 0, 1, 0};
+
+    
+    for (int epoch = 0; epoch < 10000; epoch++) {
+        backprop_through_time(&rnn, input, target);
+    }
+
+    
+    double new_input[INPUT_SIZE] = {1, 0, 0};
+    double output = forward_step(&rnn, new_input, 1);
+    printf("Predicted output: %lf\n", output);
+
+    return 0;
+}
