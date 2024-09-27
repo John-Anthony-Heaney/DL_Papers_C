@@ -17,3 +17,13 @@ double tanh_activation(double x) {
 double tanh_derivative(double x) {
     return 1 - x * x;
 }
+
+
+typedef struct {
+    double W_ih[INPUT_SIZE][HIDDEN_SIZE]; 
+    double W_hh[HIDDEN_SIZE][HIDDEN_SIZE]; 
+    double W_ho[HIDDEN_SIZE][OUTPUT_SIZE]; 
+    double b_h[HIDDEN_SIZE]; 
+    double b_o[OUTPUT_SIZE]; 
+    double h[TIME_STEPS][HIDDEN_SIZE]; 
+} RNN;
