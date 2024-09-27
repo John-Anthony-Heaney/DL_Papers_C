@@ -79,3 +79,40 @@ double forward_step(RNN *rnn, double input[], int t) {
 
     return output;
 }
+
+
+void backprop_through_time(RNN *rnn, double input[TIME_STEPS][INPUT_SIZE], double target[TIME_STEPS]) {
+    double output[TIME_STEPS] = {0};
+    double error[TIME_STEPS] = {0};
+    double delta_h[TIME_STEPS][HIDDEN_SIZE] = {0};
+
+    
+    for (int t = 1; t < TIME_STEPS; t++) {
+        output[t] = forward_step(rnn, input[t], t);
+        error[t] = target[t] - output[t];
+    }
+
+    
+    for (int t = TIME_STEPS - 1; t > 0; t--) {
+        
+        double delta_o = error[t];
+
+        
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
+            double sum = delta_o * rnn->W_ho[i][0];
+            for (int j = 0; j < HIDDEN_SIZE; j++) {
+                sum += delta_h[t][j] * rnn->W_hh[i][j];
+            }
+            delta_h[t - 1][i] = sum * tanh_derivative(rnn->h[t][i]);
+
+            
+            for (int j = 0; j < INPUT_SIZE; j++) {
+                rnn->W_ih[j][i] += LEARNING_RATE * delta_h[t][i] * input[t][j];
+            }
+            for (int j = 0; j < HIDDEN_SIZE; j++) {
+                rnn->W_hh[j][i] += LEARNING_RATE * delta_h[t][i] * rnn->h[t - 1][j];
+            }
+            rnn->W_ho[i][0] += LEARNING_RATE * delta_o * rnn->h[t][i];
+        }
+    }
+}
