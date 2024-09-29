@@ -86,3 +86,7 @@ head(reduced_dataset)
 
 ```
 
+```{r}
+write.csv(reduced_dataset, "reduced_dataset.csv", row.names = FALSE)
+```
+
