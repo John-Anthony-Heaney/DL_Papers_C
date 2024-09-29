@@ -57,4 +57,13 @@ ggplot(continuous_dataset, aes(x = factor(holiday), y = nat_demand, fill = facto
        fill = "Holiday") +
   theme_bw()
 ```
+```{r}
+ggplot(continuous_dataset, aes(x = factor(school), y = nat_demand, fill = factor(school))) +
+  geom_boxplot() +
+  labs(title = "National Demand on Schools vs Non-Schools",
+       x = "School (0 = No, 1 = Yes)",
+       y = "National Demand",
+       fill = "School") +
+  theme_bw()
+```
 
