@@ -26,7 +26,24 @@ ggplot(continuous_dataset, aes(x = datetime, y = nat_demand)) +
   labs(title = "National Demand Over Time", 
        x = "Time", 
        y = "National Demand") +
-  theme_minimal()
+  theme_bw()
+
+```
+```{r}
+library(tidyr)
+
+# Gather temperature data for faceting
+temp_long <- continuous_dataset %>%
+  select(datetime, T2M_toc, T2M_san, T2M_dav) %>%
+  pivot_longer(cols = starts_with("T2M"), names_to = "Location", values_to = "Temperature")
+
+ggplot(temp_long, aes(x = datetime, y = Temperature, color = Location)) +
+  geom_line() +
+  facet_wrap(~ Location, scales = "free_y") +
+  labs(title = "Temperature Trends Over Time by Location",
+       x = "Time", 
+       y = "Temperature (°C)") +
+  theme_bw()
 
 ```
 
