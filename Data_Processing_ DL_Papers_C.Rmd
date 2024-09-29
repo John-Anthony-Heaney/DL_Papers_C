@@ -67,3 +67,22 @@ ggplot(continuous_dataset, aes(x = factor(school), y = nat_demand, fill = factor
   theme_bw()
 ```
 
+```{r}
+
+reduced_dataset <- continuous_dataset %>%
+  select(datetime, nat_demand, T2M_toc, T2M_san, T2M_dav, QV2M_toc, QV2M_san, QV2M_dav, 
+         TQL_toc, TQL_san, TQL_dav, W2M_toc, W2M_san, W2M_dav) %>%
+  mutate(
+    T2M = rowMeans(select(., T2M_toc, T2M_san, T2M_dav), na.rm = TRUE),
+    QV2M = rowMeans(select(., QV2M_toc, QV2M_san, QV2M_dav), na.rm = TRUE),
+    TQL = rowMeans(select(., TQL_toc, TQL_san, TQL_dav), na.rm = TRUE),
+    W2M = rowMeans(select(., W2M_toc, W2M_san, W2M_dav), na.rm = TRUE)
+  ) %>%
+ 
+  select(datetime, nat_demand, T2M, QV2M, TQL, W2M)
+
+
+head(reduced_dataset)
+
+```
+
