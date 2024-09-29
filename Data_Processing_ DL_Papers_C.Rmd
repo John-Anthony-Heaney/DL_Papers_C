@@ -47,4 +47,14 @@ ggplot(temp_long, aes(x = datetime, y = Temperature, color = Location)) +
 
 ```
 
+```{r}
+
+ggplot(continuous_dataset, aes(x = factor(holiday), y = nat_demand, fill = factor(holiday))) +
+  geom_boxplot() +
+  labs(title = "National Demand on Holidays vs Non-Holidays",
+       x = "Holiday (0 = No, 1 = Yes)",
+       y = "National Demand",
+       fill = "Holiday") +
+  theme_bw()
+```
 
