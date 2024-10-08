@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #define INPUT_SIZE 3
@@ -7,6 +8,19 @@
 #define OUTPUT_SIZE 1
 #define TIME_STEPS 5
 #define LEARNING_RATE 0.01
+
+
+#define MAX_LINE_LENGTH 1024
+#define MAX_ROWS 100
+
+// Structure to hold the data from CSV
+typedef struct {
+    char name[50];
+    int age;
+    float salary;
+} Employee;
+
+
 
 
 double tanh_activation(double x) {
@@ -119,6 +133,35 @@ void backprop_through_time(RNN *rnn, double input[TIME_STEPS][INPUT_SIZE], doubl
 
 
 int main() {
+    FILE *file;
+    char buffer[MAX_LINE_LENGTH];
+    Employee employees[MAX_ROWS];
+    int row = 0;
+
+    // Open the CSV file for reading
+    file = fopen("reduced_dataset.csv", "r");
+
+    if (file == NULL) {
+        printf("Could not open file\n");
+        return 1;
+    }
+
+    // Skip the header line
+    fgets(buffer, MAX_LINE_LENGTH, file);
+
+    // Read each line from the CSV
+    while (fgets(buffer, MAX_LINE_LENGTH, file)) {
+        // Parse each line and store in the employees array
+        sscanf(buffer, "%[^,], %d, %f", employees[row].name, &employees[row].age, &employees[row].salary);
+        row++;
+    }
+
+    fclose(file);
+
+    // Print out the employees data
+    for (int i = 0; i < row; i++) {
+        printf("Employee %d: Name: %s, Age: %d, Salary: %.2f\n", i + 1, employees[i].name, employees[i].age, employees[i].salary);
+    }
     RNN rnn;
     initialize_rnn(&rnn);
 
