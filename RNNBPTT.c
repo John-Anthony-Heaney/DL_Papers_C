@@ -7,13 +7,13 @@
 #define HIDDEN_SIZE 4
 #define OUTPUT_SIZE 1
 #define TIME_STEPS 5
-#define LEARNING_RATE 0.01
+#define LEARNING_RATE 0.001
 
 #define MAX_LINE_LENGTH 1024
 #define MAX_ROWS 100
 
 typedef struct {
-    char datetime[25];  // Adjusted for datetime format
+    char datetime[25];  
     double nat_demand;
     double T2M;
     double QV2M;
@@ -130,6 +130,33 @@ void backprop_through_time(RNN *rnn, double input[TIME_STEPS][INPUT_SIZE], doubl
     }
 }
 
+double mean_squared_error(double target[], double output[], int size) {
+    double mse = 0;
+    for (int i = 0; i < size; i++) {
+        mse += pow(target[i] - output[i], 2);
+    }
+    return mse / size;
+}
+
+void evaluate_rnn(RNN *rnn, DataEntry entries[], int start_idx, int end_idx) {
+    double input[TIME_STEPS][INPUT_SIZE];
+    double target[TIME_STEPS];
+    double output[TIME_STEPS];
+
+    for (int t = 0; t < TIME_STEPS; t++) {
+        input[t][0] = entries[start_idx + t].nat_demand;
+        input[t][1] = entries[start_idx + t].T2M;
+        input[t][2] = entries[start_idx + t].QV2M;
+        input[t][3] = entries[start_idx + t].TQL;
+        input[t][4] = entries[start_idx + t].W2M;
+        target[t] = entries[start_idx + t].nat_demand;
+        output[t] = forward_step(rnn, input[t], t);
+    }
+
+    double mse = mean_squared_error(target, output, TIME_STEPS);
+    printf("Mean Squared Error: %lf\n", mse);
+}
+
 
 int main() {
     FILE *file;
@@ -161,45 +188,44 @@ int main() {
             printf("Error parsing line %d: %s\n", row + 1, buffer);
             continue; 
         }
-
         row++;
     }
 
     fclose(file);
 
-    
-    for (int i = 0; i < 10 && i < row; i++) {
-        printf("Entry %d: Datetime: %s, Nat_Demand: %.2f, T2M: %.2f, QV2M: %.6f, TQL: %.6f, W2M: %.6f\n", 
-               i + 1, entries[i].datetime, entries[i].nat_demand, entries[i].T2M, entries[i].QV2M, entries[i].TQL, entries[i].W2M);
-    }
-
-
     RNN rnn;
     initialize_rnn(&rnn);
+
+    int train_size = (int)(0.8 * row);  
+    int test_size = row - train_size;
 
     double input[TIME_STEPS][INPUT_SIZE];
     double target[TIME_STEPS];
 
-    for (int t = 0; t < TIME_STEPS; t++) {
-        input[t][0] = entries[t].nat_demand;
-        input[t][1] = entries[t].T2M;
-        input[t][2] = entries[t].QV2M;
-        input[t][3] = entries[t].TQL;
-        input[t][4] = entries[t].W2M;
-        target[t] = entries[t].nat_demand;  
-    }
 
+    for (int epoch = 0; epoch < 1000; epoch++) {
 
-    for (int epoch = 0; epoch < 10000; epoch++) {
+        for (int t = 0; t < TIME_STEPS; t++) {
+            input[t][0] = entries[t].nat_demand;
+            input[t][1] = entries[t].T2M;
+            input[t][2] = entries[t].QV2M;
+            input[t][3] = entries[t].TQL;
+            input[t][4] = entries[t].W2M;
+            target[t] = entries[t].nat_demand;
+        }
+
         backprop_through_time(&rnn, input, target);
-        if (epoch % 1000 == 0) {
-            printf("Epoch %d complete\n", epoch);
+
+        if (epoch % 10 == 0) {
+            printf("Epoch %d: Training MSE: ", epoch);
+            evaluate_rnn(&rnn, entries, 0, train_size);
+
+            printf("Test MSE: ");
+            evaluate_rnn(&rnn, entries, train_size, row); 
+
+            printf("\n");
         }
     }
-
-    double new_input[INPUT_SIZE] = {entries[TIME_STEPS].nat_demand, entries[TIME_STEPS].T2M, entries[TIME_STEPS].QV2M, entries[TIME_STEPS].TQL, entries[TIME_STEPS].W2M};
-    double predicted_output = forward_step(&rnn, new_input, 1);
-    printf("Predicted Nat_Demand for the next time step: %lf\n", predicted_output);
 
     return 0;
 }
